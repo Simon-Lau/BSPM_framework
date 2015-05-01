@@ -1,4 +1,5 @@
 <?php
+
 /**
  * App Framework
  * used for load files and classes
@@ -8,6 +9,7 @@
 class Load {
 
     public static $_db = array();
+    public static $_config = array();
 
     /**
      * function model
@@ -88,18 +90,20 @@ class Load {
      * @return db
     */
     public static function db($dbcfg, $instance = true) {
-        if($instance && self::$_db[$dbcfg])
-        {
-            return self::$_db[$dbcfg];
-        }
-        $loadcfg = self::loadFile($dbcfg, CONF_DIR, true);
-        if(!$loadcfg){
-            throw new Web_Exception("db config $dbcfg not set.");
+        $key = null;
+        if(empty($_config[$dbcfg])){
+            $loadcfg = self::loadFile($dbcfg, CONF_DIR, true);
+            $key = $loadcfg['dbname'];
+            if(!$loadcfg){
+                throw new Web_Exception("db config $dbcfg not set.");
+            }else{
+                $_config[$dbcfg] = 1;
+            }
         }
         require_once LIB_DIR. '/Db.php';
-        $db = new Web_db($dbcfg);
+        $db = new Web_Db($dbcfg);
         if ($instance) {
-            self::$_db[$dbcfg] = $db;
+            self::$_db[$key] = $db;
         }
         return $db;
     }
@@ -120,4 +124,7 @@ class Load {
         require_once LIB_DIR . '/Db_Table.php';
         return new Db_Table(array('name' => $table, 'db' => $db));
     }
+
+
+
 }
