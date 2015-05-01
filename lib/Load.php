@@ -90,22 +90,20 @@ class Load {
      * @return db
     */
     public static function db($dbcfg, $instance = true) {
-        $key = null;
-        if(empty($_config[$dbcfg])){
+        if($instance && self::$_db[$dbcfg]){
+            return self::$_db[$dbcfg];
+        }else{
             $loadcfg = self::loadFile($dbcfg, CONF_DIR, true);
-            $key = $loadcfg['dbname'];
             if(!$loadcfg){
                 throw new Web_Exception("db config $dbcfg not set.");
-            }else{
-                $_config[$dbcfg] = 1;
             }
+            require_once LIB_DIR. '/Db.php';
+            $db = new Web_Db($dbcfg);
+            if ($instance) {
+                self::$_db[$dbcfg] = $db;
+            }
+            return $db;
         }
-        require_once LIB_DIR. '/Db.php';
-        $db = new Web_Db($dbcfg);
-        if ($instance) {
-            self::$_db[$key] = $db;
-        }
-        return $db;
     }
 
 
@@ -116,13 +114,18 @@ class Load {
      * @param <string> $dbcfg
      * @return Db_Table
      */
-    public static function table($table, $dbcfg) {
+    public static function table($table, $dbcfg, $queryType = false) {
         if (null == $dbcfg || !is_string($dbcfg)) {
             return null;
         }
         $db = self::db($dbcfg, true);
         require_once LIB_DIR . '/Db_Table.php';
-        return new Db_Table(array('name' => $table, 'db' => $db));
+        if($queryType == false){
+            return new Db_Table(array('name' => $table, 'db' => $db));
+        }else{
+            return new Db_Table(array('name' => $table, 'db' => $db, 'master'=>true));   
+        }
+        
     }
 
 

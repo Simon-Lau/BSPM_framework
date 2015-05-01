@@ -41,6 +41,51 @@ class Web_db{
 		return $this->_exec($sql);
 	}
 
+	public function fetchAll($sql){
+		$stmt = $this->query($sql);
+		return $stmt->fetchAll(PDO::FETCH_ASSOC);
+	}
+
+	public function fetchRow($sql){
+		$stmt = $this->query($sql);
+		return $stmt->fetch(PDO::FETCH_ASSOC);
+	}
+
+	public function fetchOne($sql, $i = 0){
+		$stmt = $this->query($sql);
+		return $stmt->fetchColumn($i);
+	}
+
+	public function insert($table, array $data){
+		$cols = array();
+		$vals = array();
+		foreach($data as $col => $val){
+			$cols[] = "'$col'";
+			$vals[] = "'$val'";
+		}
+		$sql = "INSERT INTO ".$table." (".implode(',', $cols) . ") " . "VAULES (" . implode(',', $vals) . ")";
+		return $this->exec($sql);
+	}
+
+	public function update($table, array $data, $where = ''){
+		$set = array();
+		foreach ($data as $col => $val) {
+			$set[] = "'$col' = '" . $val ."'";
+		}
+		$sql = "UPDATE " . $table . " SET " .implode(',', $set).(($where) ? " WHERE $where" : "");
+		return $this->exec($sql);
+	}
+
+	public function delete($table, $where = ''){
+		$sql = "DELETE FROM " . $table . (($where)? " WHERE $where" : "");
+		return $this->exec($sql);
+	}
+
+	public function lastInsertId(){
+		$this->_wconnect();
+		return $this->_wdb->lastInsertId();
+	}
+
 	public function listTables(){
 		$stmt = $this->query("SHOW TABLES");
 		return $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
