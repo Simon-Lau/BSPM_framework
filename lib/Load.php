@@ -9,7 +9,6 @@
 class Load {
 
     public static $_db = array();
-    public static $_config = array();
 
     /**
      * function model
@@ -53,6 +52,10 @@ class Load {
         return self::loadClass($file, $class, $dir);
     }
 
+    public static function lib($file){
+        $class = $file."_Library";
+        return self::loadClass($file, $class, LIB_DIR.'/library');
+    }
     /**
      *loadClass function
      **/
