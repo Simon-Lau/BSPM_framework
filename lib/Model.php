@@ -87,4 +87,18 @@ abstract class Model{
 			$this->_cache->removeTag($this->_cacheTag);
 		}
 	}
+
+	public function setCache($data, $key = null){
+		if($this->_cache){
+			$key = $key ? $this->_cachekey.$key : $this->_cachekey;
+			return $this->_cache->set($key, $data, $this->_cacheTag);
+		}
+	}
+
+	public function getCache($key = null){
+		if($this->_cache){
+			$key = $key ? $this->_cachekey.$key : $this->_cachekey;
+			return $this->_cache->get($key);
+		}
+	}
 }
