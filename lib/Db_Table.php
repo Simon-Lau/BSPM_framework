@@ -57,7 +57,7 @@ class Db_Table{
 	}
 
 	protected function _setupNames(){
-		if(strpos($this->name, '.')){
+		if(strpos($this->_name, '.')){
 			list($this->_schema, $this->_name) = explode(".", $this->_name);
 		}
 
@@ -271,7 +271,7 @@ class Db_Table{
         {
             if (!$where)
             {
-                throw new Q_Exception("do update primary and where is empty");
+                throw new Web_Exception("do update primary and where is empty");
             }
             $where = $this->where($where);
         }
@@ -279,7 +279,7 @@ class Db_Table{
         {
             if ($where)
             {
-                throw new Q_Exception("do update primary exist and where exist");
+                throw new Web_Exception("do update primary exist and where exist");
             }
             $where = $this->whereby($pkData);
         }

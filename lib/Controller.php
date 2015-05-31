@@ -38,7 +38,7 @@ abstract class Controller{
 	}
 
 	public function _set($key, $value){
-		this->_request->setParam($key, $value);
+		$this->_request->setParam($key, $value);
 	}
 
 	public function _forward($action, $controller = null, $module ='currentModule'){
@@ -93,7 +93,7 @@ abstract class Controller{
 		exit;
 	}
 
-	public assign($tpl_var, $value = null){
+	public function assign($tpl_var, $value = null){
 		$this->tpl->assign($tpl_var, $value);
 	}
 

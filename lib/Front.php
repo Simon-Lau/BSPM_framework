@@ -13,7 +13,12 @@ class Web_Front{
 	protected $_plugins = array();
 
 	protected function __construct(){
-		if(null === self::$_instance){
+		$this->_request = Web_Request::getInstance();
+		$this->_response = Web_Response::getInstance();
+	}
+
+	public static function getInstance(){
+		if (null === self::$_instance) {
 			self::$_instance = new self();
 		}
 		return self::$_instance;
@@ -33,11 +38,10 @@ class Web_Front{
 	public function removePlugin($plugin){
 		if(is_string($plugin)){
 			foreach ($this->_plugins as $key => $value) {
-				$type = get_class($value){
-					if($plugin == $type){
-						unset($this->_plugins[$key]);
-					}
-				}
+                            $type = get_class($value);
+                                if($plugin == $type){
+                                        unset($this->_plugins[$key]);
+                                }
 			}
 		}else{
 			$key = array_search($plugin, $this->_plugins, true);
@@ -77,7 +81,6 @@ class Web_Front{
 			}
 			$cache->set($cacheKey, $this->_modules);
 		}
-
 		if($path != ''){
 			if($pos = strrpos($path, '.')){
 				$path = substr($path, 0, $pos);
@@ -86,15 +89,15 @@ class Web_Front{
 			if(count($path) > 3){
 				throw new Web_Exception("path depth validation failure", 404);
 			}
+                        
 			$setup = $params['controller'] = $path[0];
 			$params['action'] = $path[1];
 			if(!empty($this->_modules[$setup])){
-				$params['modules'] = $setup;
+				$params['module'] = $setup;
 				$params['controller'] = $path[1];
 				$params['action'] = $path[2];
 			}
 		}
-
 		foreach($params as $param => $value){
 			if($param === 'module'){
 				$this->_request->setModuleName($value);
@@ -115,7 +118,7 @@ class Web_Front{
 		}catch(Exception $e){
 			$this->error($e);
 		}
-		$this->dispatch();
+		$this->dispatch(); 
 	}
 
 	public function dispatch(){
@@ -124,17 +127,17 @@ class Web_Front{
 			$this->execPlugin('pre_dispatch');
 			$this->_dispatch();
 		}catch(Exception $e){
-			$this->error($e);
+//			$this->error($e);
 		}
-		$this->_response->send();
+//		$this->_response->send();
 	}
 
 	protected function _dispatch(){
 		$loadController = false;
 		$moduleName = $this->_request->getModuleName();
 		$controllerName = $this->_request->getControllerName();
-		$loadFile = $this->getModule($moduleName).'/'.$controllerName.'php';
-
+		$loadFile = $this->getModule($moduleName).'/'.$controllerName.'.php';
+                
 		if(include_once($loadFile)){
 			$className = $controllerName .'_Controller';
 		}else{
@@ -150,11 +153,9 @@ class Web_Front{
 		ob_get_clean();
 		$this->_request->setParam('_exception', $e)->setModuleName(null)->setControllerName('error')->setActionName('error');
 		try{
-			$this->_dispatch();
+                    $this->_dispatch();
 		}catch(Exception $e){
-			if(DEBUG_MODULE > 0){
-				var_dump($error);
-			}
+	            var_dump($e);
 		}
 		exit;
 	}

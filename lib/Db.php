@@ -33,7 +33,7 @@ class Web_db{
 		$this->_queryType = $type;
 	}
 
-	public function query(){
+	public function query($sql){
 		return $this->_query($sql);
 	}
 
@@ -93,7 +93,7 @@ class Web_db{
 
  	protected function _connect($config){
  		if(!isset($config['dbhost']) || !isset($config['username']) || !isset($config['password'])){
- 			throw new Web_Exception("config array error dbhost/username/password required")
+ 			throw new Web_Exception("config array error dbhost/username/password required");
  		}
  		// still some problem with zkname
  		if(strpos($config['dbhost'],'www.') > 0){

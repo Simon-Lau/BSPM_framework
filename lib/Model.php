@@ -27,7 +27,7 @@ abstract class Model{
 	}
 
 	public function getError(){
-		if(!this->isError()){
+		if(!$this->isError()){
 			$this->_error[] = "server is busy and try it later";
 		}
 		return $this->_error;
@@ -47,7 +47,7 @@ abstract class Model{
 	}
 
 	protected function checkPost($info, $check = 1){
-		i($this->_check && $check > 0){
+		if($this->_check && $check > 0){
 			$validator = Load::lib('validator');
 			if($error = $validator->check($info, $this->_check)){
 				$this->setError($error);

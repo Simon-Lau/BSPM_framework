@@ -13,7 +13,7 @@ class Web_Request{
 	protected $_requestUri;
 	protected $_baseUrl = null;
 	protected $_pathInfo = null;
-	public stati $_params = array();
+	public static $_params = array();
 
 	public function __construct(){
 		$this->setRequestUri();
@@ -81,7 +81,7 @@ class Web_Request{
 	}
 
 	public function setModuleName($value){
-		$this->_module = strtolower($vaule);
+		$this->_module = strtolower($value);
 		return $this;
 	}
 
@@ -95,7 +95,7 @@ class Web_Request{
 	}
 
 	public function getActionName(){
-		return $this->_action();
+		return $this->_action;
 	}
 
 	public function setActionName($value){
@@ -169,7 +169,7 @@ class Web_Request{
 
 	public function setPathInfo($pathInfo = null){
 		if($pathInfo === null){
-			$baseUrl = $this->getBaseUrl()
+			$baseUrl = $this->getBaseUrl();
 			$requestUri = $this->getRequestUri();
 			if($pos = strpos($requestUri, '?')){
 				$requestUri = substr($requestUri, 0, $pos);

@@ -23,10 +23,10 @@ class Load {
     public static function model($file, $module = null) {
         if ($module) {
             $class = $module . '_' . $file . '_Model';
-            $dir = MODEL_DIR . '/' . $module;
+            $dir = MOD_DIR . '/' . $module;
         } else {
             $class = $file . '_Model';
-            $dir = MODEL_DIR;
+            $dir = MOD_DIR;
         }
         return self::loadClass($file, $class, $dir);    
     }
@@ -93,7 +93,7 @@ class Load {
      * @return db
     */
     public static function db($dbcfg, $instance = true) {
-        if($instance && self::$_db[$dbcfg]){
+        if($instance && !empty(self::$_db[$dbcfg])){
             return self::$_db[$dbcfg];
         }else{
             $loadcfg = self::loadFile($dbcfg, CONF_DIR, true);
@@ -101,7 +101,7 @@ class Load {
                 throw new Web_Exception("db config $dbcfg not set.");
             }
             require_once LIB_DIR. '/Db.php';
-            $db = new Web_Db($dbcfg);
+            $db = new Web_Db($loadcfg);
             if ($instance) {
                 self::$_db[$dbcfg] = $db;
             }
