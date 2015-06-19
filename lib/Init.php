@@ -1,5 +1,5 @@
 <?php
-define('APP_NAME', 'WEB');
+define('APP_NAME', 'bank');
 define('ROOT_DIR', dirname(dirname(__FILE__))); //bank
 define('CTRL_DIR', ROOT_DIR.'/controller');
 define('CONF_DIR', ROOT_DIR.'/config');

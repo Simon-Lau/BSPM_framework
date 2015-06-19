@@ -34,7 +34,7 @@ abstract class Controller{
 		if($key === null){
 			return $this->_request->getParams();
 		}
-		return $this->_request->getParams($key, $default);
+		return $this->_request->getParam($key, $default);
 	}
 
 	public function _set($key, $value){

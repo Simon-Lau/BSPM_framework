@@ -67,7 +67,6 @@ class Web_Front{
 		$param = array();
 		$path = trim($path, '/');
 		$_routed = false;
-
 		$cache = Load::lib('cache_file');
 
 		$cacheKey = "Web_Front.route.modules".APP_NAME;
@@ -89,7 +88,6 @@ class Web_Front{
 			if(count($path) > 3){
 				throw new Web_Exception("path depth validation failure", 404);
 			}
-                        
 			$setup = $params['controller'] = $path[0];
 			$params['action'] = $path[1];
 			if(!empty($this->_modules[$setup])){
@@ -137,7 +135,6 @@ class Web_Front{
 		$moduleName = $this->_request->getModuleName();
 		$controllerName = $this->_request->getControllerName();
 		$loadFile = $this->getModule($moduleName).'/'.$controllerName.'.php';
-                
 		if(include_once($loadFile)){
 			$className = $controllerName .'_Controller';
 		}else{

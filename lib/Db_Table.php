@@ -11,7 +11,6 @@ class Db_Table{
 	protected $_order = null;
 	protected $_group = null;
 	protected $_tableName = null;
-	protected $_cols = array();
 	protected $_primary = null;
 	protected $_identity = 0;
 	protected $_tableCache = null;
@@ -124,7 +123,7 @@ class Db_Table{
 			throw new Web_Exception('pageAll count must > 0.');
 		}
 		$request = Web_Request::getInstance();
-		$sql = "SELECT * FROM '$this->_tableName'";
+		$sql = "SELECT * FROM $this->_tableName";
 		if($where){
 			$sql .= " WHERE " . $this->where($where);
 		}
@@ -142,7 +141,7 @@ class Db_Table{
 	}
 
 	public function fetchAll($where = null, $order = null, $limit = 0){
-		$sql = "SELECT * FROM '$this->_tableName'";
+		$sql = "SELECT * FROM $this->_tableName";
 		if($where){
 			$sql .= " WHERE " . $this->where($where);
 		}
@@ -150,12 +149,11 @@ class Db_Table{
 		if($limit){
 			$sql .= " LIMIT " . $limit;
 		}
-
 		return $this->_db->fetchAll($sql);
 	}
 
 	public function fetchCols($col, $where = null, $order = null, $limit = 0){
-		$sql = "SELECT $col FROM '$this->_tableName'";
+		$sql = "SELECT $col FROM $this->_tableName";
 		if($where){
 			$sql .= " WHERE " . $this->where($where);
 		}
@@ -190,7 +188,7 @@ class Db_Table{
 	}
 
 	public function count($where = null){
-		$sql = "SELECT COUNT(*) FROM '$this->_tableName'";
+		$sql = "SELECT COUNT(*) FROM $this->_tableName";
 		if($where){
 			$sql .= " WHERE " . $this->where($where);
 		}
@@ -248,9 +246,27 @@ class Db_Table{
 	public function deleteAll(){
 		return $this->_db->delete($this->_tableName);
 	}
+        
+        public function trans_insert($sqls){
+            $flag = true;
+            $this->_db->query("START TRANSACTION");
+            $result = true;
+            foreach($sqls as $sql){
+               $res = $this->_db->query($sql);
+               if($res == false){
+                  $result = false; 
+               }
+            }
+            if($result == false){
+                $this->_db->query("ROLLBACK");
+                $flag = false;
+            }else{
+                $this->_db->query("COMMIT");
+            }
+            return $flag;
+        }
 
 	public function _insert($data){
-		$data = $this->_filter($data);
 		$pkIdentity = $this->_primary[(int)$this->_identity];
 		if(!$pkData = $data[$pkIdentity]){
 			unset($data[$pkIdentity]);
@@ -264,7 +280,6 @@ class Db_Table{
 	}
 
 	public function _update($data, $where = null){
-		$data = $this->_filter($data);
         $pkData = array_intersect_key($data, array_flip($this->_primary));
 
         if (!$pkData)
@@ -293,7 +308,6 @@ class Db_Table{
 	}
 
 	public function _updateWithPK($data, $where = null){
-		$data = $this->_filter($data);
         $pkData = array_intersect_key($data, array_flip($this->_primary));
         if (!$pkData)
         {
@@ -320,29 +334,35 @@ class Db_Table{
 	}
 
 	public function where($where){
-		if(is_array($where)){
-			$whereAnd = array();
-			foreach ($where as $key => $val) {
-				if(!is_numeric($key)){
-					if(!array_key_exists($key, $this->_cols)){
-						continue;
-					}
-					if(is_array($val)){
-						if(count($val) == 1){
-							$val = array_shift($val);
-							$val = "'$key' = '$val'";
-						}else{
-							$val = "'$key' IN ('" . implode("','", $val) . "')";
-						}
-					}else{
-						$val = "'$key' = '$val'";
-					}
-				}
-				$whereAnd[] = $val;
-			}
-			$where = "(" . implode(' AND ', $whereAnd) . ")";
-		}
-		return $where;
+            if (is_array($where))
+            {
+                $whereAnd = array();
+                foreach ($where as $k => $v)
+                {
+                    if (!is_numeric($k))
+                    {
+                        if (is_array($v))
+                        {
+                            if (count($v) == 1)
+                            {
+                                $v = array_shift($v);
+                                $v = "`$k`='$v'";
+                            }
+                            else
+                            {
+                                $v = "`$k` IN ('" . implode("','", $v) . "')";
+                            }
+                        }
+                        else
+                        {
+                            $v = "`$k`='$v'";
+                        }
+                    }
+                    $whereAnd[] = $v;
+                }
+                $where = '(' . implode(' AND ', $whereAnd) . ')';
+            }
+            return $where;
 	}
 
 	public function whereby($where, $by = null){
@@ -350,9 +370,6 @@ class Db_Table{
 			if($by){
 				$by = (array)$by;
 				foreach ($by as $key) {
-					if(!array_key_exists($key, $this->_cols)){
-						throw new Web_Exception("primary key not in cols");
-					}
 				}
 			}else{
 				$by = $this->_primary;
@@ -386,7 +403,6 @@ class Db_Table{
 		if(!is_array($order)){
 			return " ORDER BY " . $order;
 		}
-		$order = $this->_filter($order);
 		$neworder = array();
 		foreach ($order as $key => $val) {
 			if($val == '1' || strtolower($val) =='asc'){
@@ -402,10 +418,6 @@ class Db_Table{
 			return " ORDER BY " . implode(' , ', $neworder);
 		}
 		return "";
-	}
-
-	protected function _filter($info){
-		return array_intersect_key($info, $this->_cols);
 	}
 
 }
