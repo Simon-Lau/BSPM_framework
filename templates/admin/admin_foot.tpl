@@ -1,0 +1,1 @@
+admin_foot.tpl
